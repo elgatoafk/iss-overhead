@@ -1,5 +1,4 @@
 from processing import *
-from constants import *
 import time
 
 while True:
