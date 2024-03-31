@@ -1,6 +1,10 @@
 import requests
 from datetime import datetime
 from constants import *
+import smtplib
+from sensitive import *
+from email.message import EmailMessage
+
 
 def hour_splitter(date_time: str) -> int:
     time_only = date_time.split("T")[1]
@@ -41,4 +45,21 @@ def is_iss_close():
     iss_position = get_iss_position()
     my_position = (MY_LONGITUDE, MY_LATITUDE)
     return (my_position[1] - 5 <= iss_position[1] <= my_position[1] + 5) and my_position[0] - 5 <= iss_position[0] <= my_position[0]+5
+
+
+def send_notif():
+    msg = EmailMessage()
+    msg.set_content('Look up')
+
+    msg['Subject'] = 'ISS is overhead'
+    msg['From'] = my_email
+    msg['To'] = other_email
+
+
+    connection = smtplib.SMTP("smtp.gmail.com", port=587)
+    connection.starttls()
+    connection.login(user=my_email, password=my_password)
+    connection.send_message(msg)
+    connection.close()
+
 
