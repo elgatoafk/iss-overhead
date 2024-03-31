@@ -1,4 +1,5 @@
 import requests
+from datetime import datetime
 from constants import *
 
 def hour_splitter(date_time: str) -> int:
@@ -18,9 +19,9 @@ def get_iss_position() -> tuple:
 
     return longitude, latitude
 
-def get_sunrise_sunset() -> tuple:
+def get_sunrise_sunset(parameters: dict) -> tuple:
     sunset_response = requests.get(
-    url="https://api.sunrise-sunset.org/json", params=PARAMETERS, timeout=20
+    url="https://api.sunrise-sunset.org/json", params=parameters, timeout=20
 )
     sunset_response.raise_for_status()
 
@@ -29,4 +30,15 @@ def get_sunrise_sunset() -> tuple:
     sunrise = hour_splitter(sunset_data["results"]["sunrise"])
     sunset = hour_splitter(sunset_data["results"]["sunset"])
     return sunrise, sunset
+
+def is_dark():
+    time_now = datetime.now()
+    current_hour = time_now.hour
+    sunrise_sunset = get_sunrise_sunset(PARAMETERS)
+    return current_hour > sunrise_sunset[1] or current_hour < sunrise_sunset[0]
+
+def is_iss_close():
+    iss_position = get_iss_position()
+    my_position = (MY_LONGITUDE, MY_LATITUDE)
+    return (my_position[1] - 5 <= iss_position[1] <= my_position[1] + 5) and my_position[0] - 5 <= iss_position[0] <= my_position[0]+5
 
